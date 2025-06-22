@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treatment Effectiveness Model</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #444;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        label {
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .loading {
+            text-align: center;
+            display: none;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .feature-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        .patient-image {
+            max-width: 100%;
+            margin-top: 15px;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        .col {
+            flex: 1;
+            padding: 0 10px;
+            min-width: 300px;
+        }
+        .feature-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .feature-section h5 {
+            margin-top: 0;
+            color: #333;
+        }
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        #clearFormBtn {
+            background-color: #f44336;
+        }
+        #clearFormBtn:hover {
+            background-color: #d32f2f;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Treatment Effectiveness Model</h1>
+        
+        <div class="section">
+            <h2>Train Model</h2>
+            <p>Train the treatment effectiveness model using all available patient data.</p>
+            <button id="trainModelBtn">Train Model</button>
+            
+            <div class="loading" id="trainLoading">
+                <p>Training model, please wait...</p>
+                <div class="spinner"></div>
+            </div>
+            
+            <div class="results" id="trainResults">
+                <h3>Model Training Results</h3>
+                <p><strong>Total Patients:</strong> <span id="totalPatients">0</span></p>
+                <p><strong>Effective Treatments:</strong> <span id="effectiveTreatments">0</span></p>
+                <p><strong>Ineffective Treatments:</strong> <span id="ineffectiveTreatments">0</span></p>
+                <p><strong>Effectiveness Rate:</strong> <span id="effectivenessRate">0</span>%</p>
+                
+                <h3>Top Features</h3>
+                <div id="featureImportance"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col">
+                <div class="section">
+                    <h2>Analyze Patient</h2>
+                    <div class="form-group">
+                        <label for="patientSelect">Select Patient:</label>
+                        <select id="patientSelect">
+                            <option value="">Select a patient</option>
+                        </select>
+                    </div>
+                    <button id="analyzePatientBtn">Analyze Patient</button>
+
+                    <div class="loading" id="analyzeLoading">
+                        <p>Analyzing patient, please wait...</p>
+                        <div class="spinner"></div>
+                    </div>
+
+                    <div class="results" id="patientResults">
+                        <h3>Patient Analysis Results</h3>
+                        <p><strong>Patient:</strong> <span id="patientId"></span></p>
+                        <p><strong>ANC Stability:</strong> <span id="ancStability"></span>%</p>
+                        <p><strong>PLT Stability:</strong> <span id="pltStability"></span>%</p>
+                        <p><strong>Treatment Assessment:</strong> <span id="treatmentAssessment"></span></p>
+
+                        <div id="patientImageContainer">
+                            <img id="patientImage" class="patient-image" alt="Patient Treatment Analysis">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="section">
+                    <h2>New Patient Prediction</h2>
+                    <p>Enter all patient information to get a treatment effectiveness prediction.</p>
+
+                    <div id="customPredictionForm">
+                        <div id="manualInputForm">
+                            <h4>Patient Information</h4>
+
+                            <!-- Patient Demographics Section -->
+                            <div class="feature-section">
+                                <h5>Patient Demographics</h5>
+
+                                <div class="form-group">
+                                    <label for="Age">Age (years):</label>
+                                    <input type="number" step="0.1" id="Age" name="Age" placeholder="Patient age in years">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="Sex">Sex:</label>
+                                    <select id="Sex" name="Sex">
+                                        <option value="1">Male</option>
+                                        <option value="0">Female</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="weight">Weight (kg):</label>
+                                    <input type="number" step="0.1" id="weight" name="weight" placeholder="Patient weight in kg">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="Lineage">Lineage:</label>
+                                    <select id="lineage" name="lineage">
+                                        <option value="B-ALL">B-ALL</option>
+                                        <option value="T-ALL">T-ALL</option>
+                                        <option value="Mixed">Mixed</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Blood Counts Section -->
+                            <div class="feature-section">
+                                <h5>Blood Counts</h5>
+
+                                <div class="form-group">
+                                    <label for="WBC_Count">Initial WBC Count:</label>
+                                    <input type="number" step="1" id="WBC_Count" name="WBC_Count" placeholder="Initial white blood cell count">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ANC_mean">ANC Mean:</label>
+                                    <input type="number" step="0.01" id="ANC_mean" name="ANC_mean" placeholder="Average Absolute Neutrophil Count">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="PLT_mean">PLT Mean:</label>
+                                    <input type="number" step="1" id="PLT_mean" name="PLT_mean" placeholder="Average Platelet Count">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="anc_stability">ANC Stability (%):</label>
+                                    <input type="number" step="0.1" id="anc_stability" name="anc_stability" placeholder="ANC stability percentage">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="plt_stability">PLT Stability (%):</label>
+                                    <input type="number" step="0.1" id="plt_stability" name="plt_stability" placeholder="PLT stability percentage">
+                                </div>
+                            </div>
+
+                            <!-- Medication Dosages Section -->
+                            <div class="feature-section">
+                                <h5>Medication Dosages</h5>
+
+                                <div class="form-group">
+                                    <label for="6MP_mg_mean">6MP Mean Dose (mg):</label>
+                                    <input type="number" step="0.01" id="6MP_mg_mean" name="6MP_mg_mean" placeholder="Average 6MP dose in mg">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="6MP_DI_mean">6MP Mean Dose Intensity:</label>
+                                    <input type="number" step="0.01" id="6MP_DI_mean" name="6MP_DI_mean" placeholder="Average 6MP dose intensity">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="MTX_mg_mean">MTX Mean Dose (mg):</label>
+                                    <input type="number" step="0.01" id="MTX_mg_mean" name="MTX_mg_mean" placeholder="Average MTX dose in mg">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="MTX_DI_mean">MTX Mean Dose Intensity:</label>
+                                    <input type="number" step="0.01" id="MTX_DI_mean" name="MTX_DI_mean" placeholder="Average MTX dose intensity">
+                                </div>
+                            </div>
+
+                            <!-- Disease Characteristics Section -->
+                            <div class="feature-section">
+                                <h5>Disease Characteristics</h5>
+
+                                <div class="form-group">
+                                    <label for="relapse_count">Relapse Count:</label>
+                                    <input type="number" step="1" id="relapse_count" name="relapse_count" placeholder="Number of relapses">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="toxicity">Toxicity:</label>
+                                    <select id="toxicity" name="toxicity">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="alt">ALT:</label>
+                                    <input type="number" step="1" id="alt" name="alt" placeholder="Alanine transaminase level">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="featureInputs" style="display: none;">
+                            <!-- Dynamic feature inputs will be added here -->
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="predictBtn">Make Prediction</button>
+                            <button id="clearFormBtn" type="button">Clear Form</button>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="predictLoading">
+                        <p>Making prediction, please wait...</p>
+                        <div class="spinner"></div>
+                    </div>
+
+                    <div class="results" id="predictionResults">
+                        <h3>Prediction Results</h3>
+                        <p><strong>Random Forest Probability:</strong> <span id="rfProbability"></span>%</p>
+                        <p><strong>Gradient Boosting Probability:</strong> <span id="gbProbability"></span>%</p>
+                        <p><strong>Average Probability:</strong> <span id="avgProbability"></span>%</p>
+                        <p><strong>Prediction:</strong> <span id="prediction"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const trainModelBtn = document.getElementById('trainModelBtn');
+        const trainLoading = document.getElementById('trainLoading');
+        const trainResults = document.getElementById('trainResults');
+        const patientSelect = document.getElementById('patientSelect');
+        const analyzePatientBtn = document.getElementById('analyzePatientBtn');
+        const analyzeLoading = document.getElementById('analyzeLoading');
+        const patientResults = document.getElementById('patientResults');
+        const predictBtn = document.getElementById('predictBtn');
+        const predictLoading = document.getElementById('predictLoading');
+        const predictionResults = document.getElementById('predictionResults');
+        const featureInputs = document.getElementById('featureInputs');
+
+        // Check if model is trained
+        async function checkModelStatus() {
+            try {
+                const response = await fetch('/api/model_status');
+                const data = await response.json();
+                return data.is_trained;
+            } catch (error) {
+                console.error('Error checking model status:', error);
+                return false;
+            }
+        }
+
+        // Load patients
+        async function loadPatients() {
+            try {
+                const response = await fetch('/api/patients');
+                const patients = await response.json();
+
+                // Clear existing options
+                patientSelect.innerHTML = '<option value="">Select a patient</option>';
+
+                // Add patient options
+                patients.forEach(patient => {
+                    const option = document.createElement('option');
+                    option.value = patient;
+                    option.textContent = patient;
+                    patientSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+        }
+
+        // Load feature names for custom prediction
+        async function loadFeatureNames() {
+            try {
+                const response = await fetch('/api/feature_names');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Clear existing inputs
+                    featureInputs.innerHTML = '';
+
+                    // Add a title for the form
+                    const formTitle = document.createElement('h4');
+                    formTitle.textContent = 'Enter Patient Information';
+                    formTitle.style.marginBottom = '15px';
+                    featureInputs.appendChild(formTitle);
+
+                    // Create sections for different types of inputs
+                    const sections = {
+                        'Blood Counts': ['ANC', 'PLT', 'WBC'],
+                        'Medication Dosages': ['6MP', 'MTX'],
+                        'Patient Characteristics': ['Age', 'Sex', 'bmi', 'weight', 'height'],
+                        'Disease Characteristics': ['relapse', 'toxicity', 'alt', 'ast'],
+                        'Other Features': []
+                    };
+
+                    // Function to create a section
+                    const createSection = (title, features) => {
+                        if (features.length === 0) return;
+
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.className = 'feature-section';
+                        sectionDiv.style.marginBottom = '20px';
+
+                        const sectionTitle = document.createElement('h5');
+                        sectionTitle.textContent = title;
+                        sectionTitle.style.borderBottom = '1px solid #ddd';
+                        sectionTitle.style.paddingBottom = '5px';
+                        sectionDiv.appendChild(sectionTitle);
+
+                        features.forEach(feature => {
+                            const formGroup = document.createElement('div');
+                            formGroup.className = 'form-group';
+
+                            const label = document.createElement('label');
+                            label.setAttribute('for', `feature-${feature.name}`);
+
+                            // Add importance percentage if available
+                            if (feature.importance !== undefined) {
+                                label.textContent = `${feature.name} (${(feature.importance * 100).toFixed(1)}%):`;
+                            } else {
+                                label.textContent = `${feature.name}:`;
+                            }
+
+                            let input;
+
+                            // Special handling for Sex field
+                            if (feature.name === 'Sex') {
+                                input = document.createElement('select');
+                                input.id = `feature-${feature.name}`;
+                                input.name = feature.name;
+
+                                const optionM = document.createElement('option');
+                                optionM.value = '1';
+                                optionM.textContent = 'Male';
+
+                                const optionF = document.createElement('option');
+                                optionF.value = '0';
+                                optionF.textContent = 'Female';
+
+                                input.appendChild(optionM);
+                                input.appendChild(optionF);
+                            } else {
+                                input = document.createElement('input');
+                                input.type = 'number';
+                                input.step = '0.01';
+                                input.id = `feature-${feature.name}`;
+                                input.name = feature.name;
+                                input.placeholder = `Enter value for ${feature.name}`;
+                            }
+
+                            formGroup.appendChild(label);
+                            formGroup.appendChild(input);
+                            sectionDiv.appendChild(formGroup);
+                        });
+
+                        featureInputs.appendChild(sectionDiv);
+                    };
+
+                    // Process combined features if available
+                    if (data.combined_features && data.combined_features.length > 0) {
+                        // Categorize features into sections
+                        const categorizedFeatures = {
+                            'Blood Counts': [],
+                            'Medication Dosages': [],
+                            'Patient Characteristics': [],
+                            'Disease Characteristics': [],
+                            'Other Features': []
+                        };
+
+                        data.combined_features.forEach(feature => {
+                            const name = feature.name;
+
+                            if (name.includes('ANC') || name.includes('PLT') || name.includes('WBC')) {
+                                categorizedFeatures['Blood Counts'].push(feature);
+                            } else if (name.includes('6MP') || name.includes('MTX')) {
+                                categorizedFeatures['Medication Dosages'].push(feature);
+                            } else if (name === 'Age' || name === 'Sex' || name === 'bmi' || name.includes('weight') || name.includes('height')) {
+                                categorizedFeatures['Patient Characteristics'].push(feature);
+                            } else if (name.includes('relapse') || name.includes('toxicity') || name === 'alt' || name === 'ast') {
+                                categorizedFeatures['Disease Characteristics'].push(feature);
+                            } else {
+                                categorizedFeatures['Other Features'].push(feature);
+                            }
+                        });
+
+                        // Create sections for each category
+                        Object.keys(categorizedFeatures).forEach(category => {
+                            createSection(category, categorizedFeatures[category]);
+                        });
+
+                        // Enable prediction button
+                        predictBtn.disabled = false;
+                    } else if (data.top_features && data.top_features.length > 0) {
+                        // Fallback to just showing top features if combined features not available
+                        createSection('Top Features', data.top_features);
+                        predictBtn.disabled = false;
+                    } else {
+                        featureInputs.innerHTML = '<p>No feature importance data available. Please retrain the model.</p>';
+                    }
+                } else {
+                    featureInputs.innerHTML = `<p>Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading feature names:', error);
+                featureInputs.innerHTML = '<p>Error loading feature names. See console for details.</p>';
+            }
+        }
+
+        // Train model
+        trainModelBtn.addEventListener('click', async () => {
+            trainModelBtn.disabled = true;
+            trainLoading.style.display = 'block';
+            trainResults.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/train_model', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Update results
+                    document.getElementById('totalPatients').textContent = data.total_patients;
+                    document.getElementById('effectiveTreatments').textContent = data.effective_treatments;
+                    document.getElementById('ineffectiveTreatments').textContent = data.ineffective_treatments;
+                    document.getElementById('effectivenessRate').textContent = data.effectiveness_rate.toFixed(1);
+
+                    // Display feature importance
+                    const featureImportanceDiv = document.getElementById('featureImportance');
+                    featureImportanceDiv.innerHTML = '';
+
+                    data.top_features.forEach(feature => {
+                        const featureDiv = document.createElement('div');
+
+                        const featureLabel = document.createElement('div');
+                        featureLabel.textContent = `${feature.name} (${(feature.importance * 100).toFixed(1)}%)`;
+
+                        const featureBarContainer = document.createElement('div');
+
+                        const featureBar = document.createElement('div');
+                        featureBar.className = 'feature-bar';
+                        featureBar.style.width = `${feature.importance * 100 * 5}%`;  // Scale for visibility
+
+                        featureBarContainer.appendChild(featureBar);
+                        featureDiv.appendChild(featureLabel);
+                        featureDiv.appendChild(featureBarContainer);
+                        featureImportanceDiv.appendChild(featureDiv);
+                    });
+
+                    trainResults.style.display = 'block';
+
+                    // Load feature names for custom prediction
+                    await loadFeatureNames();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error training model:', error);
+                alert('Error training model. See console for details.');
+            } finally {
+                trainModelBtn.disabled = false;
+                trainLoading.style.display = 'none';
+            }
+        });
+
+        // Analyze patient
+        analyzePatientBtn.addEventListener('click', async () => {
+            const upn = patientSelect.value;
+
+            if (!upn) {
+                alert('Please select a patient');
+                return;
+            }
+
+            analyzePatientBtn.disabled = true;
+            analyzeLoading.style.display = 'block';
+            patientResults.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/analyze_patient', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ upn })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Update results
+                    document.getElementById('patientId').textContent = data.upn;
+                    document.getElementById('ancStability').textContent = data.anc_stability.toFixed(1);
+                    document.getElementById('pltStability').textContent = data.plt_stability.toFixed(1);
+                    document.getElementById('treatmentAssessment').textContent = data.likely_effective ? 'Likely Effective' : 'Likely Ineffective';
+                    document.getElementById('treatmentAssessment').className = data.likely_effective ? 'success' : 'error';
+
+                    // Display image if available
+                    if (data.image) {
+                        document.getElementById('patientImage').src = 'data:image/png;base64,' + data.image;
+                        document.getElementById('patientImageContainer').style.display = 'block';
+                    } else {
+                        document.getElementById('patientImageContainer').style.display = 'none';
+                    }
+
+                    patientResults.style.display = 'block';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error analyzing patient:', error);
+                alert('Error analyzing patient. See console for details.');
+            } finally {
+                analyzePatientBtn.disabled = false;
+                analyzeLoading.style.display = 'none';
+            }
+        });
+
+        // Make prediction with custom input
+        predictBtn.addEventListener('click', async () => {
+            // Collect feature values from both manual form and dynamic form
+            const featureValues = {};
+
+            // Get values from manual form
+            const manualForm = document.getElementById('manualInputForm');
+            const manualInputs = manualForm.querySelectorAll('input, select');
+
+            manualInputs.forEach(input => {
+                if (input.value) {
+                    // For lineage, we need to convert to binary features
+                    if (input.id === 'lineage') {
+                        const lineage = input.value;
+                        featureValues['Lineage_B-ALL'] = lineage === 'B-ALL' ? 1 : 0;
+                        featureValues['Lineage_T-ALL'] = lineage === 'T-ALL' ? 1 : 0;
+                        featureValues['Lineage_AML'] = lineage === 'AML' ? 1 : 0;
+                    } else {
+                        featureValues[input.name] = input.value;
+                    }
+                }
+            });
+
+            // Get values from dynamic form if visible
+            if (featureInputs.style.display !== 'none') {
+                const dynamicInputs = featureInputs.querySelectorAll('input');
+                dynamicInputs.forEach(input => {
+                    if (input.value) {
+                        featureValues[input.name] = input.value;
+                    }
+                });
+            }
+
+            if (Object.keys(featureValues).length === 0) {
+                alert('Please enter at least one feature value');
+                return;
+            }
+
+            predictBtn.disabled = true;
+            predictLoading.style.display = 'block';
+            predictionResults.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(featureValues)
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Update results
+                    document.getElementById('rfProbability').textContent = (data.rf_probability * 100).toFixed(1);
+                    document.getElementById('gbProbability').textContent = (data.gb_probability * 100).toFixed(1);
+                    document.getElementById('avgProbability').textContent = (data.avg_probability * 100).toFixed(1);
+
+                    const predictionElement = document.getElementById('prediction');
+                    predictionElement.textContent = data.likely_effective ? 'Likely Effective' : 'Likely Ineffective';
+                    predictionElement.className = data.likely_effective ? 'success' : 'error';
+
+                    predictionResults.style.display = 'block';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error making prediction:', error);
+                alert('Error making prediction. See console for details.');
+            } finally {
+                predictBtn.disabled = false;
+                predictLoading.style.display = 'none';
+            }
+        });
+
+        // Clear form button
+        document.getElementById('clearFormBtn').addEventListener('click', () => {
+            const inputs = document.querySelectorAll('#manualInputForm input');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+
+            // Reset selects to first option
+            const selects = document.querySelectorAll('#manualInputForm select');
+            selects.forEach(select => {
+                select.selectedIndex = 0;
+            });
+
+            // Hide prediction results
+            predictionResults.style.display = 'none';
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadPatients();
+            const isModelTrained = await checkModelStatus();
+            if (isModelTrained) {
+                console.log('Model is already trained');
+                await loadFeatureNames();
+            }
+        });
+    </script>
+</body>
+</html>
